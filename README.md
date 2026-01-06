@@ -55,6 +55,55 @@ Sistem aşağıdaki verileri toplar:
 - **Enerji** (kWh) - Toplam tüketim
 - **Frekans** (Hz) - Şebeke frekansı
 
+## 🔌 Gerçek OSOS Verilerini Alma
+
+### Yöntem 1: REST API (Önerilen)
+
+OSOS sisteminizden backend'e veri gönderin:
+
+\`\`\`bash
+curl -X POST http://localhost:3001/api/olcumler \
+  -H "Content-Type: application/json" \
+  -d '{
+    "cihaz_id": 1,
+    "aktif_guc": 185.5,
+    "reaktif_guc": 45.2,
+    "kapasitif_guc": 25.8,
+    "gerilim": 225.3,
+    "akim": 12.5,
+    "guc_faktoru": 0.92,
+    "frekans": 50.0,
+    "enerji": 1250.75
+  }'
+\`\`\`
+
+### Yöntem 2: Python Script (Otomatik)
+
+\`\`\`bash
+# Gereksinimleri yükle
+pip install -r requirements.txt
+
+# Veri toplama scriptini çalıştır
+python osos_collector.py
+\`\`\`
+
+**Not:** `osos_collector.py` dosyasındaki `read_osos_data()` fonksiyonunu OSOS sisteminize göre düzenleyin:
+- Modbus TCP → `pymodbus` kullanın
+- MQTT → `paho-mqtt` kullanın
+- REST API → `requests` kullanın
+
+### Yöntem 3: Excel/CSV Import
+
+1. `osos_upload.html` dosyasını tarayıcıda açın
+2. CSV veya Excel dosyanızı yükleyin
+3. Sistem otomatik olarak verileri backend'e gönderecek
+
+**CSV Format Örneği:**
+\`\`\`csv
+cihaz_id,aktif_guc,reaktif_guc,kapasitif_guc,gerilim,akim,guc_faktoru,frekans,enerji,zaman
+1,185.5,45.2,25.8,225.3,12.5,0.92,50.0,1250.75,2026-01-06 10:30:00
+\`\`\`
+
 ## 🌐 API Endpoints
 
 ### Ölçüm Verileri

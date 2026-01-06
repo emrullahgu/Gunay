@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OSOS Veri Yükleme Aracı</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 600px;
+            width: 100%;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        .upload-area {
+            border: 3px dashed #667eea;
+            border-radius: 10px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: #f8f9fa;
+        }
+        .upload-area:hover {
+            background: #e9ecef;
+            border-color: #764ba2;
+        }
+        .upload-area.dragover {
+            background: #e7f0ff;
+            border-color: #0066cc;
+        }
+        input[type="file"] {
+            display: none;
+        }
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            margin-top: 20px;
+            width: 100%;
+            transition: transform 0.2s;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .status {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            display: none;
+        }
+        .status.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            display: block;
+        }
+        .status.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            display: block;
+        }
+        .format-info {
+            background: #e7f3ff;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+            font-size: 13px;
+            color: #004085;
+        }
+        .format-info h3 {
+            margin-bottom: 10px;
+            color: #004085;
+        }
+        .format-info pre {
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            overflow-x: auto;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔌 OSOS Veri Yükleme</h1>
+        <p class="subtitle">CSV veya Excel dosyasından OSOS ölçüm verilerini sisteme yükleyin</p>
+        
+        <div class="upload-area" id="uploadArea">
+            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#667eea" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="17 8 12 3 7 8"></polyline>
+                <line x1="12" y1="3" x2="12" y2="15"></line>
+            </svg>
+            <p style="margin-top: 15px; color: #667eea; font-weight: 600;">
+                Dosya seçmek için tıklayın veya sürükleyin
+            </p>
+            <p style="margin-top: 5px; color: #999; font-size: 13px;">
+                CSV veya Excel (.xlsx) formatında
+            </p>
+            <input type="file" id="fileInput" accept=".csv,.xlsx,.xls">
+        </div>
+
+        <button class="btn" id="uploadBtn" disabled>📤 Verileri Yükle</button>
+
+        <div class="status" id="status"></div>
+
+        <div class="format-info">
+            <h3>📋 Dosya Formatı</h3>
+            <p>CSV/Excel dosyanız şu sütunları içermelidir:</p>
+            <pre>cihaz_id,aktif_guc,reaktif_guc,kapasitif_guc,gerilim,akim,guc_faktoru,frekans,enerji,zaman
+1,185.5,45.2,25.8,225.3,12.5,0.92,50.0,1250.75,2026-01-06 10:30:00</pre>
+        </div>
+    </div>
+
+    <script>
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const uploadBtn = document.getElementById('uploadBtn');
+        const status = document.getElementById('status');
+        let selectedFile = null;
+
+        // Backend URL
+        const BACKEND_URL = 'http://localhost:3001/api';
+
+        uploadArea.addEventListener('click', () => fileInput.click());
+
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFile(files[0]);
+            }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFile(e.target.files[0]);
+            }
+        });
+
+        function handleFile(file) {
+            selectedFile = file;
+            uploadArea.innerHTML = `
+                <p style="color: #28a745; font-size: 18px; font-weight: 600;">✓ ${file.name}</p>
+                <p style="color: #666; margin-top: 10px;">Yüklemek için butona tıklayın</p>
+            `;
+            uploadBtn.disabled = false;
+        }
+
+        uploadBtn.addEventListener('click', async () => {
+            if (!selectedFile) return;
+
+            uploadBtn.disabled = true;
+            uploadBtn.textContent = '⏳ Yükleniyor...';
+
+            try {
+                const text = await selectedFile.text();
+                const lines = text.split('\n');
+                const headers = lines[0].split(',').map(h => h.trim());
+
+                let successCount = 0;
+                let errorCount = 0;
+
+                // İlk satırı atla (header)
+                for (let i = 1; i < lines.length; i++) {
+                    const line = lines[i].trim();
+                    if (!line) continue;
+
+                    const values = line.split(',');
+                    const data = {
+                        cihaz_id: parseInt(values[0]),
+                        aktif_guc: parseFloat(values[1]),
+                        reaktif_guc: parseFloat(values[2]),
+                        kapasitif_guc: parseFloat(values[3]),
+                        gerilim: parseFloat(values[4]),
+                        akim: parseFloat(values[5]),
+                        guc_faktoru: parseFloat(values[6]),
+                        frekans: parseFloat(values[7]),
+                        enerji: parseFloat(values[8]),
+                        zaman: values[9] || new Date().toISOString()
+                    };
+
+                    try {
+                        const response = await fetch(`${BACKEND_URL}/olcumler`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(data)
+                        });
+
+                        if (response.ok) {
+                            successCount++;
+                        } else {
+                            errorCount++;
+                        }
+                    } catch (err) {
+                        errorCount++;
+                    }
+                }
+
+                showStatus('success', `✅ ${successCount} kayıt başarıyla yüklendi! ${errorCount > 0 ? `(${errorCount} hata)` : ''}`);
+            } catch (error) {
+                showStatus('error', '❌ Dosya okuma hatası: ' + error.message);
+            }
+
+            uploadBtn.disabled = false;
+            uploadBtn.textContent = '📤 Verileri Yükle';
+        });
+
+        function showStatus(type, message) {
+            status.className = `status ${type}`;
+            status.textContent = message;
+        }
+    </script>
+</body>
+</html>

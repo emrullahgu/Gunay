@@ -1,0 +1,5 @@
+# OSOS Veri Toplama Gereksinimleri
+requests==2.31.0
+pymodbus==3.5.4  # Modbus TCP için
+paho-mqtt==1.6.1  # MQTT için
+python-dotenv==1.0.0
