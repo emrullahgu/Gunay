@@ -57,7 +57,48 @@ Sistem aşağıdaki verileri toplar:
 
 ## 🔌 Gerçek OSOS Verilerini Alma
 
-### Yöntem 1: REST API (Önerilen)
+### Yöntem 1: OSOS Web Portal (ÖNERİLEN) ⭐
+
+Dağıtım şirketinizin (Toroslar EDAŞ, Başkent EDAŞ, AYEDAŞ, vb.) OSOS Web Portal'ından otomatik veri çekin:
+
+**Adım 1: Portal Hesabı Alın**
+
+1. Dağıtım şirketinizin web sitesinden "OSOS Kullanıcı Hesap Başvuru Formu"nu indirin
+2. Formu ve gerekli belgeleri (vekâletname, imza sirküleri) doldurun
+3. KEP ile gönderin veya fiziki teslim edin:
+   - Toroslar EDAŞ KEP: toroslar.edas@hs03.kep.tr
+   - Başkent EDAŞ KEP: baskent.edas@hs03.kep.tr  
+   - AYEDAŞ KEP: istanbul.ayedas@hs03.kep.tr
+   - Çağrı Merkezi: 186
+
+**Adım 2: GUNAY Yapılandırması**
+
+\`\`\`bash
+# .env dosyası oluştur
+copy .env.example .env
+
+# Düzenle:
+OSOS_DAGITIM_SIRKETI=toroslar
+OSOS_KULLANICI_ADI=your_username
+OSOS_SIFRE=your_password
+OSOS_SAYAC_NO=12345678
+
+# Veri toplamayı başlat
+python osos_collector.py
+\`\`\`
+
+**Desteklenen Dağıtım Şirketleri:**
+- ✅ Toroslar EDAŞ (Adana, Gaziantep, Hatay, Mersin)
+- ✅ Başkent EDAŞ (Ankara, Bartın, Çankırı)
+- ✅ AYEDAŞ (İstanbul Anadolu)
+- ✅ GEDAŞ (Gaziantep)
+- ✅ SEDAŞ (Konya)
+
+📘 **Detaylı Rehber:** [OSOS_ENTEGRASYON.md](OSOS_ENTEGRASYON.md)
+
+---
+
+### Yöntem 2: REST API (Önceki Yöntem)
 
 OSOS sisteminizden backend'e veri gönderin:
 

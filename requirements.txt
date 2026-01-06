@@ -1,5 +1,11 @@
 # OSOS Veri Toplama Gereksinimleri
 requests==2.31.0
-pymodbus==3.5.4  # Modbus TCP için
-paho-mqtt==1.6.1  # MQTT için
 python-dotenv==1.0.0
+
+# Protokol Seçenekleri
+pymodbus==3.5.4  # Modbus TCP/RTU için
+paho-mqtt==1.6.1  # MQTT için
+pyserial==3.5  # Optik port ve RS-485 için (Yerel okuma)
+
+# Web Scraping (OSOS Portal API yoksa - Opsiyonel)
+selenium==4.15.0
