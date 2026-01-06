@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Zap, TrendingUp, Activity, DollarSign } from 'lucide-react';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { config } from '../config';
+import { mockAPI } from '../mockData';
 
 const Dashboard = () => {
   const [stats, setStats] = useState(null);
@@ -17,16 +19,33 @@ const Dashboard = () => {
 
   const fetchData = async () => {
     try {
-      const [statsRes, dataRes] = await Promise.all([
-        axios.get(`/api/dashboard/${cihazId}`),
-        axios.get(`/api/olcumler?limit=20&cihaz_id=${cihazId}`)
-      ]);
-      
-      setStats(statsRes.data);
-      setRecentData(dataRes.data.reverse());
+      if (config.useMockData) {
+        // Mock data kullan
+        const [statsRes, dataRes] = await Promise.all([
+          mockAPI.getDashboard(),
+          mockAPI.getOlcumler()
+        ]);
+        setStats(statsRes.data);
+        setRecentData(dataRes.data.reverse());
+      } else {
+        // Gerçek API kullan
+        const [statsRes, dataRes] = await Promise.all([
+          axios.get(`/api/dashboard/${cihazId}`),
+          axios.get(`/api/olcumler?limit=20&cihaz_id=${cihazId}`)
+        ]);
+        setStats(statsRes.data);
+        setRecentData(dataRes.data.reverse());
+      }
       setLoading(false);
     } catch (error) {
       console.error('Veri alınamadı:', error);
+      // Hata durumunda mock data kullan
+      const [statsRes, dataRes] = await Promise.all([
+        mockAPI.getDashboard(),
+        mockAPI.getOlcumler()
+      ]);
+      setStats(statsRes.data);
+      setRecentData(dataRes.data.reverse());
       setLoading(false);
     }
   };

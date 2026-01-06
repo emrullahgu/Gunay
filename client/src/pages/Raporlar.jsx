@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Calendar, Download, TrendingUp } from 'lucide-react';
 import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { config } from '../config';
+import { generateMockData } from '../mockData';
 
 const Raporlar = () => {
   const [raporTipi, setRaporTipi] = useState('haftalik');
@@ -16,11 +18,16 @@ const Raporlar = () => {
   const fetchRapor = async () => {
     setLoading(true);
     try {
-      const response = await axios.get(`/api/raporlar/${raporTipi}/${cihazId}`);
-      setRaporData(response.data);
+      if (config.useMockData) {
+        setRaporData(generateMockData());
+      } else {
+        const response = await axios.get(`/api/raporlar/${raporTipi}/${cihazId}`);
+        setRaporData(response.data);
+      }
       setLoading(false);
     } catch (error) {
       console.error('Rapor alınamadı:', error);
+      setRaporData(generateMockData());
       setLoading(false);
     }
   };

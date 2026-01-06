@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { Plus, Power, MapPin } from 'lucide-react';
+import { config } from '../config';
+import { mockCihazlar } from '../mockData';
 
 const Cihazlar = () => {
   const [cihazlar, setCihazlar] = useState([]);
@@ -18,11 +20,16 @@ const Cihazlar = () => {
 
   const fetchCihazlar = async () => {
     try {
-      const response = await axios.get('/api/cihazlar');
-      setCihazlar(response.data);
+      if (config.useMockData) {
+        setCihazlar(mockCihazlar);
+      } else {
+        const response = await axios.get('/api/cihazlar');
+        setCihazlar(response.data);
+      }
       setLoading(false);
     } catch (error) {
       console.error('Cihazlar alınamadı:', error);
+      setCihazlar(mockCihazlar);
       setLoading(false);
     }
   };

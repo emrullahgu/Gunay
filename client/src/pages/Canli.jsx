@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { RefreshCw } from 'lucide-react';
+import { config } from '../config';
+import { generateMockData } from '../mockData';
 
 const Canli = () => {
   const [olcum, setOlcum] = useState(null);
@@ -15,11 +17,18 @@ const Canli = () => {
 
   const fetchData = async () => {
     try {
-      const response = await axios.get(`/api/olcumler/son/${cihazId}`);
-      setOlcum(response.data);
+      if (config.useMockData) {
+        const mockData = generateMockData();
+        setOlcum(mockData[mockData.length - 1]);
+      } else {
+        const response = await axios.get(`/api/olcumler/son/${cihazId}`);
+        setOlcum(response.data);
+      }
       setLoading(false);
     } catch (error) {
       console.error('Veri alınamadı:', error);
+      const mockData = generateMockData();
+      setOlcum(mockData[mockData.length - 1]);
       setLoading(false);
     }
   };

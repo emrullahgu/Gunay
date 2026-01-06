@@ -81,21 +81,61 @@ Dashboard'da şunları görebilirsiniz:
 - Enerji maliyeti hesaplamaları
 - Verimlilik analizleri
 
-## 🚀 Geliştirme
+## 🚀 Deployment (Canlıya Alma)
+
+### Backend - Render.com (Ücretsiz)
+
+1. [Render.com](https://render.com)'a giriş yapın
+2. "New +" → "Web Service" seçin
+3. GitHub repo'nuzu bağlayın: `https://github.com/emrullahgu/Gunay`
+4. Ayarlar:
+   - **Name:** gunay-backend
+   - **Root Directory:** (boş bırakın)
+   - **Build Command:** `npm install`
+   - **Start Command:** `npm start`
+   - **Plan:** Free
+5. "Create Web Service" tıklayın
+6. Backend URL'inizi kopyalayın (örn: `https://gunay-backend.onrender.com`)
+
+### Frontend - Netlify
+
+1. [Netlify](https://netlify.com)'a giriş yapın
+2. "Add new site" → "Import an existing project"
+3. GitHub repo'nuzu seçin
+4. Build ayarları (otomatik gelecek):
+   - **Base directory:** `client`
+   - **Build command:** `npm run build`
+   - **Publish directory:** `client/dist`
+5. Environment Variables ekleyin:
+   - `VITE_API_URL` = Backend URL'niz (Render'dan kopyaladığınız)
+6. "Deploy site" tıklayın
+
+### Manuel Deploy
+
+\`\`\`bash
+# 1. Backend'i deploy et
+git push origin main
+
+# 2. Netlify CLI ile frontend deploy (opsiyonel)
+cd client
+npm install -g netlify-cli
+netlify deploy --prod
+\`\`\`
+
+## 🔧 Geliştirme
 
 Proje yapısı:
 \`\`\`
-osos-enerji-izleme/
+gunay/
 ├── client/                 # React frontend
 │   ├── src/
 │   │   ├── components/     # Bileşenler
 │   │   ├── pages/          # Sayfalar
-│   │   ├── utils/          # Yardımcı fonksiyonlar
 │   │   └── App.jsx         # Ana uygulama
 ├── server/                 # Express backend
 │   ├── database/           # Veritabanı
-│   ├── routes/             # API routes
 │   └── index.js            # Server entry point
+├── netlify.toml            # Netlify config
 └── README.md
 \`\`\`
 
@@ -105,7 +145,7 @@ MIT
 
 ## 👨‍💻 Geliştirici
 
-Emrullah - OSOS Enerji İzleme Sistemi
+Emrullah - GUNAY OSOS Enerji İzleme Sistemi
 
 ---
 
